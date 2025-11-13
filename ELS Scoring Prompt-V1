@@ -1,0 +1,177 @@
+
+    
+    # 1. Degree Level Score (20%)
+    degree_level_score = calculate_max_degree_level_v3(
+        resume_data['education']
+    )
+    
+    # 2. Education Relevance Score (25%)
+    education_relevance_score = calculate_weighted_education_relevance_v2(
+        resume_data['education'],
+        target_skill
+    )
+    
+    # 3. University Quality Score (20%)
+    university_score = calculate_all_universities_quality_v2(
+        resume_data['education']
+    )
+    
+    # 4. Relevant Courses Count (15%)
+    courses_score = min(100, 
+        len(resume_data.get('relevant_courses', [])) * 10
+    )
+    
+    # 5. Relevant Certifications Count (15%)
+    cert_score = min(100, 
+        len(resume_data.get('relevant_certifications', [])) * 15
+    )
+    
+    # محاسبه ELS نهایی با وزن‌های جدید
+    ELS = min(100,
+        0.20 * degree_level_score +
+        0.25 * education_relevance_score +
+        0.20 * university_score +
+        0.15 * courses_score +
+        0.15 * cert_score
+    )
+    
+    return {
+        'total_score': round(ELS, 2),
+        'components': {
+            'degree_level': {
+                'raw_score': degree_level_score,
+                'weight': 0.20,
+                'contribution': round(0.20 * degree_level_score, 2)
+            },
+            'education_relevance': {
+                'raw_score': education_relevance_score,
+                'weight': 0.25,
+                'contribution': round(0.25 * education_relevance_score, 2)
+            },
+            'university_quality': {
+                'raw_score': university_score,
+                'weight': 0.20,
+                'contribution': round(0.20 * university_score, 2)
+            },
+            'relevant_courses': {
+                'raw_score': courses_score,
+                'weight': 0.15,
+                'contribution': round(0.15 * courses_score, 2)
+            },
+            'relevant_certifications': {
+                'raw_score': cert_score,
+                'weight': 0.15,
+                'contribution': round(0.15 * cert_score, 2)
+            }
+        }
+    }
+
+
+def calculate_max_degree_level_v3(education_records):
+    """
+    محاسبه بالاترین سطح تحصیلات - نسخه 3
+    جدول جدید: PhD(100), Master's(75), Bachelor's(50), Associate(25), Diploma(0)
+    """
+    degree_scores = {
+        'phd': 100,
+        'masters': 75,      # تغییر یافته: 85 → 75
+        'bachelors': 50,    # تغییر یافته: 70 → 50
+        'associate': 25,    # تغییر یافته: 50 → 25
+        'diploma': 0
+    }
+    
+    max_score = 0
+    for record in education_records:
+        level = record.get('degree_level', '').lower()
+        score = degree_scores.get(level, 0)
+        max_score = max(max_score, score)
+    
+    return max_score
+
+
+def calculate_weighted_education_relevance_v2(education_records, target_skill):
+    """
+    محاسبه Education Relevance
+    Level Multiplier: 1.0 for Bachelor's+, 0.0 for Associate/Diploma
+    """
+    degree_priority = {
+        'phd': 5, 
+        'masters': 4, 
+        'bachelors': 3, 
+        'associate': 2, 
+        'diploma': 1
+    }
+    
+    sorted_records = sorted(
+        education_records,
+        key=lambda x: degree_priority.get(x.get('degree_level', '').lower(), 0),
+        reverse=True
+    )
+    
+    weights = [1.0, 0.5, 0.3, 0.2]
+    
+    level_multipliers = {
+        'phd': 1.0,
+        'masters': 1.0,
+        'bachelors': 1.0,
+        'associate': 0.0,
+        'diploma': 0.0
+    }
+    
+    total_score = 0
+    
+    for i, record in enumerate(sorted_records):
+        degree_level = record.get('degree_level', '').lower()
+        field = record.get('field_of_study', '').lower()
+        
+        relevance_factor = get_relevance_factor(field, target_skill)
+        level_mult = level_multipliers.get(degree_level, 0)
+        weight = weights[i] if i < len(weights) else 0.2
+        
+        score = relevance_factor * level_mult * weight
+        total_score += score
+    
+    return round(total_score, 2)
+
+
+def calculate_all_universities_quality_v2(education_records):
+    """
+    محاسبه کیفیت دانشگاه
+    مجموع Tier Scores (بدون Level Weight)
+    """
+    tier_scores = {
+        1: 100,
+        2: 70,
+        3: 50,
+        4: 30,
+        5: 10
+    }
+    
+    total_score = 0
+    
+    for record in education_records:
+        tier = record.get('university_tier', 5)
+        tier_score = tier_scores.get(tier, 10)
+        total_score += tier_score
+    
+    return round(total_score, 2)
+
+
+def get_relevance_factor(field, target_skill):
+    """
+    محاسبه Relevance Factor بر اساس رشته و مهارت هدف
+    """
+    relevance_map = {
+        'computer_science': 100,
+        'software_engineering': 100,
+        'artificial_intelligence': 100,
+        'data_science': 100,
+        'computer_engineering': 75,
+        'electrical_engineering': 50,
+        'mathematics': 50,
+        'physics': 25,
+        'business': 0
+    }
+    
+    field_normalized = field.replace(' ', '_')
+    return relevance_map.get(field_normalized, 0)
