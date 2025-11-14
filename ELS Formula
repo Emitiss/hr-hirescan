@@ -1,0 +1,51 @@
+فرمول ریاضیاتی کامل ELS:
+"ELS"=min⁡(100,∑_(k=1)^5 w_k×S_k)
+
+که در آن:
+"ELS"=min⁡(100,0.20×S_"degree" +0.25×S_"relevance" +0.20×S_"university" +0.15×S_"courses" +0.15×S_"cert" )
+
+________________________________________
+مؤلفه‌های پنج‌گانه ELS:
+1. Degree Level Score (وزن: 20%)
+S_"degree" =((max⁡)┬(j=1))┴n {D_j}
+
+که در آن:
+D_j={■(100&"if degree = PhD" @75&"if degree = Master’s" @50&"if degree = Bachelor’s" @25&"if degree = Associate" @0&"if degree = Diploma" )
+
+________________________________________
+2. Education Relevance Score (وزن: 25%)
+S_"relevance" =∑_(i=1)^n▒〖(R_i×L_i×W_i)〗
+
+که در آن:
+A) Relevance Factor:
+R_i={■(100&"if field ∈ {CS,SE,AI,Data Science}" @75&"if field = Computer Engineering" @50&"if field ∈ {EE,Mathematics}" @25&"if field = Physics" @0&"otherwise" )
+
+B) Level Multiplier:
+L_i={■(1.0&"if degree ∈ {PhD,Master’s,Bachelor’s}" @0.0&"if degree ∈ {Associate,Diploma}" )
+
+C) Decreasing Weight (بر اساس رتبه پس از مرتب‌سازی):
+W_i={■(1.0&"if rank = 1" @0.5&"if rank = 2" @0.3&"if rank = 3" @0.2&"if rank ≥ 4" )
+
+⚠️ نکته مهم: S_"relevance" سقف ندارد و می‌تواند از 100 بگذرد.
+________________________________________
+3. University Quality Score (وزن: 20%)
+S_"university" =∑_(i=1)^n▒〖(T_i×W_i)〗
+
+که در آن:
+A) Tier Score:
+T_i={■(100&"if tier = 1 (Top 50 worldwide)" @70&"if tier = 2 (Top 200 worldwide)" @50&"if tier = 3 (Top 500 worldwide)" @30&"if tier = 4 (Regional universities)" @10&"if tier = 5 (Local/Unknown)" )
+
+B) Decreasing Weight (بر اساس رتبه پس از مرتب‌سازی بر حسب tier):
+W_i={■(1.0&"if rank = 1" @0.5&"if rank = 2" @0.3&"if rank = 3" @0.2&"if rank ≥ 4" )
+
+⚠️ نکته مهم: S_"university" سقف ندارد و می‌تواند از 100 بگذرد.
+________________________________________
+4. Relevant Courses Score (وزن: 15%)
+S_"courses" =min⁡(100,N_"courses" ×10)
+
+که N_"courses" تعداد دوره‌های مرتبط است.
+________________________________________
+5. Relevant Certifications Score (وزن: 15%)
+S_"cert" =min⁡(100,N_"cert" ×15)
+
+که N_"cert" تعداد گواهینامه‌های مرتبط است.
