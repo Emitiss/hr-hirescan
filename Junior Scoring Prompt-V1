@@ -102,6 +102,9 @@ System receives TWO JSON objects: `resume_data` and `target_job`
 ### B.4 Target University (Optional, can be empty array)
 - target_university: string (required) - e.g. "MIT", "Sharif University"
 
+### B.5 Reputable Company (Optional, can be empty array)
+- reputable_company: string (required) - e.g. "Google", "Digikala"
+
 ---
 
 ## Complete Example
