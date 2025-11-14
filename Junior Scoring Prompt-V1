@@ -53,6 +53,10 @@ You must calculate:
 - Apply $\min(100, \cdot)$ only where explicitly stated in formulas
 - Round all scores to 2 decimal places
 
+
+
+
+
 # INPUT DATA SPECIFICATION
 
 ## Structure Overview
@@ -62,23 +66,23 @@ System receives TWO JSON objects: `resume_data` and `target_job`
 
 ## A. RESUME DATA
 
-### A.2 Work Experience (Required, min 1 entry)
+### A.1 Work Experience (Required, min 1 entry)
 - job_title: string (required) - e.g. "Senior Backend Engineer"
 - company_name: string (required) - e.g. "Google", "Digikala"
 - location: string (required) - e.g. "Tehran, Iran", "Remote"
 - start_date: string (required) - format: YYYY-MM, e.g. "2020-06"
 - end_date: string (required) - format: YYYY-MM or "Present", e.g. "2023-12"
 
-### A.3 Education (Required, min 1 entry)
+### A.2 Education (Required, min 1 entry)
 - degree_type: string (required) - enum: "PhD" | "Master" | "Bachelor" | "Associate"
 - field_of_study: string (required) - e.g. "Computer Science"
 - university_name: string (required) - e.g. "MIT", "Sharif University"
 - graduation_year: integer (required) - format: YYYY, e.g. 2020
 
-### A.4 Certifications (Optional, can be empty array)
+### A.3 Certifications (Optional, can be empty array)
 - cert_name: string (required if entry exists)
 
-### A.5 Courses (Optional, can be empty array)
+### A.4 Courses (Optional, can be empty array)
 - course_name: string (required if entry exists)
 
 ---
@@ -92,11 +96,11 @@ System receives TWO JSON objects: `resume_data` and `target_job`
 - skill_name: string (required) - e.g. "Python", "Django"
 - importance: string (required) - enum: "Critical" | "Important" | "Nice-to-have"
 
-### B.3 Target Seniority (Required)
-- target_seniority: string (required) - enum: "C-Level/VP" | "Director/Senior Manager" | "Manager/Lead" | "Senior" | "Mid-Level" | "Junior/Entry"
+### B.3 Target Company (Required)
+- target_company: string (required) - e.g. "Google", "Digikala"
 
-### B.4 Company Tier (Required)
-- company_tier: integer (required) - enum: 2 | 3
+### B.4 Target University (Required)
+- target_university: string (required) - e.g. "MIT", "Sharif University"
 
 ---
 
@@ -104,10 +108,6 @@ System receives TWO JSON objects: `resume_data` and `target_job`
 ```json
 {
   "resume_data": {
-"personal_info": {
-"name": "Ali Ahmadi",
-"current_location": "Tehran, Iran"
-},
 "work_experience": [
 {
 "job_title": "Senior Backend Engineer",
@@ -147,8 +147,8 @@ System receives TWO JSON objects: `resume_data` and `target_job`
 {"skill_name": "PostgreSQL", "importance": "Important"},
 {"skill_name": "Kubernetes", "importance": "Nice-to-have"}
 ],
-"target_seniority": "Senior",
-"company_tier": 2
+"target_company": "Google",
+"target_university": "MIT"
   }
 }
 
@@ -170,6 +170,3 @@ System receives TWO JSON objects: `resume_data` and `target_job`
 **Enum Validation:**
 - degree_type: "PhD" | "Master" | "Bachelor" | "Associate"
 - importance: "Critical" | "Important" | "Nice-to-have"
-- target_seniority: "C-Level/VP" | "Director/Senior Manager" | "Manager/Lead" | "Senior" | "Mid-Level" | "Junior/Entry"
-- company_tier: 2 | 3 (integer)
-
