@@ -396,4 +396,353 @@ Skip any degree missing \( R_i, L_i, W_i \).
 
 ---
 
+## 4. OUTPUT FORMAT
+
+### 4.1 Response Structure
+
+#### 4.1.1 Primary JSON Output Schema
+The system MUST generate a JSON response with the following exact structure:
+```json
+{
+  "scoring_results": {
+"final_scores": {
+"experience_depth_score": number,
+"education_level_score": number,
+"overall_weighted_score": number
+},
+"detailed_calculations": {
+"eds_breakdown": {
+"positions_analyzed": [...],
+"overlapping_periods": [...],
+"total_weighted_years": number,
+"final_eds": number,
+"full_calculation_trace": "string"
+},
+"els_breakdown": {
+"degree_component": {...},
+"relevance_component": {...},
+"university_component": {...},
+"courses_component": {...},
+"certifications_component": {...},
+"weighted_sum": number,
+"final_els": number,
+"full_calculation_trace": "string"
+}
+},
+"metadata": {
+"calculation_timestamp": "ISO-8601",
+"target_job": "string",
+"candidate_name": "string",
+"scoring_version": "1.0"
+}
+  },
+  "interpretation": {
+"strengths": ["string"],
+"weaknesses": ["string"],
+"recommendations": ["string"]
+  },
+  "audit_trail": {
+"data_completeness": {
+"positions_complete": number,
+"positions_total": number,
+"education_entries_complete": number,
+"education_entries_total": number,
+"missing_fields": ["string"]
+},
+"assumptions_made": ["string"],
+"edge_cases_encountered": ["string"],
+"warnings": ["string"]
+  }
+}
+
+### 4.2 Step-by-Step Calculation Details (Full Mathematical Trace)
+
+#### 4.2.1 EDS Calculation Breakdown with Full Trace
+Each position MUST include complete mathematical substitution:
+
+json
+{
+  "eds_breakdown": {
+"positions_analyzed": [
+{
+"position_index": 1,
+"job_title": "Senior Software Engineer",
+"company": "Tech Corp",
+"duration_months": 24,
+"parameters": {
+"M": 1.2,
+"GM": 1.5,
+"RDF": 1.2,
+"SMS": 0.85
+},
+"calculation_steps": {
+"step_1": "SMS^0.7 = 0.85^0.7 = 0.8857",
+"step_2": "24 × 1.2 = 28.8",
+"step_3": "28.8 × 1.5 = 43.2",
+"step_4": "43.2 × 1.2 = 51.84",
+"step_5": "51.84 × 0.8857 = 45.93",
+"final": "Contribution = 45.93 months"
+},
+"weighted_contribution": 45.93
+}
+],
+"total_calculation": {
+"sum_of_contributions": "45.93 + 32.15 + ... = 156.48",
+"conversion_to_years": "156.48 ÷ 12 = 13.04",
+"final_calculation": "EDS = min(100, 10 × 13.04) = min(100, 130.4) = 100.00"
+},
+"total_weighted_years": 13.04,
+"final_eds": 100.00
+  }
+}
+
+#### 4.2.2 ELS Calculation Breakdown with Full Trace
+
+json
+{
+  "els_breakdown": {
+"degree_component": {
+"degrees_evaluated": [
+{"degree": "PhD", "value": 100},
+{"degree": "MS", "value": 75}
+],
+"calculation": "S_degree = max(100, 75) = 100",
+"S_degree": 100
+},
+"relevance_component": {
+"education_entries": [
+{
+"degree": "PhD",
+"field": "Computer Science",
+"R_i": 100,
+"L_i": 1.0,
+"W_i": 1.0,
+"calculation": "100 × 1.0 × 1.0 = 100.00",
+"contribution": 100.00
+},
+{
+"degree": "MS",
+"field": "Software Engineering",
+"R_i": 100,
+"L_i": 1.0,
+"W_i": 0.5,
+"calculation": "100 × 1.0 × 0.5 = 50.00",
+"contribution": 50.00
+}
+],
+"total_calculation": "100.00 + 50.00 = 150.00",
+"S_relevance": 150.00
+},
+"university_component": {
+"universities": [
+{
+"name": "MIT",
+"tier": 1,
+"T_i": 100,
+"W_i": 1.0,
+"calculation": "100 × 1.0 = 100.00",
+"contribution": 100.00
+},
+{
+"name": "Stanford",
+"tier": 1,
+"T_i": 100,
+"W_i": 0.5,
+"calculation": "100 × 0.5 = 50.00",
+"contribution": 50.00
+}
+],
+"total_calculation": "100.00 + 50.00 = 150.00",
+"S_university": 150.00
+},
+"courses_component": {
+"count": 5,
+"calculation": "min(100, 5 × 10) = min(100, 50) = 50.00",
+"S_courses": 50.00
+},
+"certifications_component": {
+"count": 3,
+"calculation": "min(100, 3 × 15) = min(100, 45) = 45.00",
+"S_cert": 45.00
+},
+"final_calculation": {
+"step_1": "0.20 × 100 = 20.00",
+"step_2": "0.25 × 150.00 = 37.50",
+"step_3": "0.20 × 150.00 = 30.00",
+"step_4": "0.15 × 50.00 = 7.50",
+"step_5": "0.15 × 45.00 = 6.75",
+"sum": "20.00 + 37.50 + 30.00 + 7.50 + 6.75 = 101.75",
+"final": "ELS = min(100, 101.75) = 100.00"
+},
+"weighted_sum": 101.75,
+"final_els": 100.00
+  }
+}
+
+#### 4.2.3 Overall Score Calculation
+json
+{
+  "overall_calculation": {
+"formula": "Overall = 0.5 × EDS + 0.5 × ELS",
+"substitution": "Overall = 0.5 × 100.00 + 0.5 × 100.00",
+"step_1": "0.5 × 100.00 = 50.00",
+"step_2": "0.5 × 100.00 = 50.00",
+"final": "50.00 + 50.00 = 100.00"
+  }
+}
+
+### 4.3 Results Display Format
+
+#### 4.3.1 Primary Summary Table
+markdown
+## SCORING SUMMARY
+
+| Metric | Score | Maximum |
+|--------|-------|---------|
+| Experience Depth Score (EDS) | XX.XX | 100.00 |
+| Education Level Score (ELS) | XX.XX | 100.00 |
+| **Overall Weighted Score** | **XX.XX** | **100.00** |
+
+**Formula Applied:** Overall = 0.5 × EDS + 0.5 × ELS
+**Calculation:** 0.5 × XX.XX + 0.5 × XX.XX = XX.XX
+
+#### 4.3.2 Experience Analysis Table
+markdown
+### Experience Breakdown
+
+| Position | Company | Type | Location | Duration (mo) | SMS | Weighted Contribution |
+|----------|---------|------|----------|---------------|-----|----------------------|
+| [Title] | [Company] | [Target/Reputable/Other] | [Country] | XX | X.XX | XX.XX |
+| ... | ... | ... | ... | ... | ... | ... |
+| **TOTAL** | - | - | - | XXX | - | **XXX.XX months** |
+
+**Total Weighted Years:** XX.XX years
+**EDS Calculation:** min(100, 10 × XX.XX) = XX.XX
+
+#### 4.3.3 Education Analysis Table
+markdown
+### Education Breakdown
+
+| Component | Raw Score | Weight | Weighted Score |
+|-----------|-----------|--------|----------------|
+| Degree Level (S_degree) | XX.XX | 0.20 | XX.XX |
+| Field Relevance (S_relevance) | XX.XX | 0.25 | XX.XX |
+| University Quality (S_university) | XX.XX | 0.20 | XX.XX |
+| Relevant Courses (S_courses) | XX.XX | 0.15 | XX.XX |
+| Certifications (S_cert) | XX.XX | 0.15 | XX.XX |
+| **TOTAL** | - | 1.00 | **XX.XX** |
+
+**ELS Calculation:** min(100, XX.XX) = XX.XX
+
+#### 4.3.4 Detailed Education Entries
+markdown
+### Education Details
+
+| Degree | University | Field | End Date | Tier | Relevance | Weight | Contribution |
+|--------|------------|-------|----------|------|-----------|--------|--------------|
+| [Degree] | [Univ] | [Field] | YYYY-MM | X | XXX | X.X | XX.XX |
+| ... | ... | ... | ... | ... | ... | ... | ... |
+
+### 4.4 Interpretation and Analysis Output
+
+markdown
+## ANALYSIS
+
+### Key Strengths
+1. [Specific strength with evidence from calculations]
+2. [Specific strength with evidence from calculations]
+3. [Specific strength with evidence from calculations]
+
+### Areas for Improvement
+1. [Specific gap identified with numerical evidence]
+2. [Specific gap identified with numerical evidence]
+
+### Recommendations
+- [Actionable recommendation based on score analysis]
+- [Actionable recommendation based on score analysis]
+
+### 4.5 Audit Trail and Data Quality Report
+
+markdown
+## AUDIT TRAIL
+
+### Data Completeness
+- Experience positions with complete data: X/Y
+- Education entries processed: X/Y
+- Fields with missing data: [field1, field2, ...]
+
+### Calculation Warnings
+- [Warning 1: Missing SMS for position X, defaulted to 0.1]
+- [Warning 2: Overlapping positions detected, combined using max multipliers]
+
+### Assumptions Made
+1. [Assumption: No end date for position X, assumed current]
+2. [Assumption: University tier not found, defaulted to Tier 5]
+
+### Edge Cases Handled
+1. [Overlapping periods between positions X and Y resolved]
+2. [Missing duration calculated from dates]
+
+### 4.6 Error Handling and Partial Results
+
+When critical data is missing or invalid, the system MUST:
+
+1. **Continue calculations** with available data
+2. **Document all issues** in the audit trail
+3. **Provide partial scores** where possible
+4. **Include warnings** in the output
+
+#### 4.6.1 Error Response Structure
+json
+{
+  "scoring_results": {
+"final_scores": {
+"experience_depth_score": number_or_null,
+"education_level_score": number_or_null,
+"overall_weighted_score": number_or_null
+},
+"calculation_status": "partial",
+"warnings": [
+"Unable to calculate SMS for 2 positions",
+"Missing education end dates for ranking"
+]
+  },
+  "audit_trail": {
+"critical_errors": [],
+"warnings": [
+"Position 'Software Developer' missing end date",
+"University 'Unknown University' not in tier database"
+],
+"data_quality_score": "medium"
+  }
+}
+
+### 4.7 Formatting Rules and Constraints
+
+#### 4.7.1 Numerical Precision
+- **Scores (EDS, ELS, Overall):** Exactly 2 decimal places (XX.XX)
+- **Weighted years:** 2 decimal places
+- **Multipliers (M, GM, RDF):** 1 decimal place
+- **SMS values:** 2 decimal places
+- **Percentages:** 1 decimal place (XX.X%)
+- **Durations:** Whole numbers (months)
+
+#### 4.7.2 Null and Missing Value Handling
+- Replace null scores with 0.00
+- Mark missing required fields as "Not Provided"
+- Display missing optional fields as "-"
+- Calculate partial scores when possible
+
+#### 4.7.3 Output Constraints
+- No ASCII art or visual charts
+- No emoji or special Unicode symbols
+- Use only standard markdown tables
+- Bold only for totals and final scores
+- No color coding or HTML tags
+
+#### 4.7.4 Sorting Requirements
+- Experience positions: By end date (newest first)
+- Education entries: By end date (newest first) 
+- Strengths/Weaknesses: By impact magnitude (highest first)
+- Warnings: By severity (critical first)
 
