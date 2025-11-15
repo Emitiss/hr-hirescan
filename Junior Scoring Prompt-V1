@@ -174,3 +174,226 @@ System receives TWO JSON objects: `resume_data` and `target_job`
 **Enum Validation:**
 - degree_type: "PhD" | "Master" | "Bachelor" | "Associate"
 - importance: "Critical" | "Important" | "Nice-to-have"
+
+---
+
+## 3. CALCULATION RULES
+
+### 3.1 Mathematical Formulas and Notation
+
+#### 3.1.1 Experience Depth Score (EDS)
+\[
+EDS = \min(100, 10 \times Y_{weighted})
+\]
+
+\[
+Y_{weighted} = \frac{\sum_{i=1}^{n} (duration_i \times M_i \times GM_i \times RDF_i \times SMS_i^{0.7})}{12}
+\]
+
+**Parameters:**
+- \( n \): number of total work positions  
+- \( duration_i \): duration of position *i* in months (taken from RESUME DATA JSON)  
+- \( M_i \): Company Quality Multiplier  
+- \( GM_i \): Geographic Multiplier  
+- \( RDF_i \): Role Depth Factor  
+- \( SMS_i \): Skill Match Score (0–1)  
+- Division by 12 converts months to years  
+
+#### 3.1.2 Education Level Score (ELS)
+\[
+ELS = \min(100, 0.20S_{degree}+0.25S_{relevance}+0.20S_{university}+0.15S_{courses}+0.15S_{cert})
+\]
+
+**Component Formulas:**
+- \( S_{degree} = \max_{j=1}^{n} \{D_j\} \)
+- \( S_{relevance} = \sum_{i=1}^{n} (R_i \times L_i \times W_i) \)
+- \( S_{university} = \sum_{i=1}^{n} (T_i \times W_i) \)
+- \( S_{courses} = \min(100, N_{courses} \times 10) \)
+- \( S_{cert} = \min(100, N_{cert} \times 15) \)
+
+---
+
+### 3.2 Parameter Tables
+
+#### Table 1 – Company Quality Multiplier (M)
+| Company Type | Value | Description |
+|-------------|-------|-------------|
+| Target Company | 1.5 | Listed in “Target Companies” input |
+| Reputable Company | 1.2 | Listed in “Reputable Companies” input |
+| Other | 1.0 | Not listed in either of the above categories |
+
+#### Table 2 – Geographic Multiplier (GM)
+| Location | Value | Description |
+|----------|-------|-------------|
+| US | 1.5 | United States |
+| EU / East Asia / Canada | 1.2 | Europe, East Asian countries, and Canada |
+| Others | 1.0 | Any other region |
+
+#### Table 3 – Role Depth Factor (RDF)
+| Role Level | Value | Example |
+|------------|-------|---------|
+| Executive | 1.5 | CEO, CTO, VP Engineering |
+| Lead | 1.4 | Tech Lead, Engineering Manager |
+| Senior | 1.2 | Senior Developer/Engineer |
+| Mid-Level | 1.1 | Mid-level Developer |
+| Junior | 1.0 | Junior Developer |
+| Intern | 0.7 | Internship role |
+
+#### Table 4 – Skill Match Score (SMS)
+- Value range: 0–1  
+- Determined by semantic analysis of **skill and technology matching** between the position and the TARGET JOB requirements.  
+- Considers overlapping technical tools, methodologies, and domain familiarity.
+
+#### Table 5 – Degree Level Values (\( D_j \))
+| Degree Type | Value |
+|------------|-------|
+| PhD | 100 |
+| Master’s | 75 |
+| Bachelor’s | 50 |
+| Associate | 25 |
+| Diploma | 0 |
+
+#### Table 6 – Education Relevance Factor (\( R_i \))
+LLM dynamically generates relevance values according to the **TARGET JOB** title.  
+- Directly relevant → 100  
+- Partially relevant → 50‒75  
+- Tangentially related → 25  
+- Unrelated → 0  
+
+#### Table 7 – Level Multiplier (\( L_i \))
+| Degree Category | Value |
+|----------------|-------|
+| PhD / Master’s / Bachelor’s | 1.0 |
+| Associate / Diploma | 0.0 |
+
+#### Table 8 – Decreasing Weight (\( W_i \))
+| Rank | Value | Description |
+|------|-------|-------------|
+| 1st | 1.0 | Most recent degree |
+| 2nd | 0.5 | Second most recent |
+| 3rd | 0.3 | Third most recent |
+| 4th+ | 0.3 | All remaining degrees after the third |
+
+#### Table 9 – University Tier Score (\( T_i \))
+| Tier | Value | Description |
+|------|-------|-------------|
+| Tier 1 | 100 | Top 50 worldwide |
+| Tier 2 | 70 | Top 200 worldwide |
+| Tier 3 | 50 | Top 500 worldwide |
+| Tier 4 | 30 | Regional universities (e.g., Khwarazmi University, University of Mazandaran, Brock University, Universität Kassel) |
+| Tier 5 | 10 | Local/unknown or unranked institutions |
+
+---
+
+### 3.3 Calculation Execution Order
+
+#### 3.3.1 EDS Calculation Steps
+1. **Extract Data:**  
+   - Get `duration_i` in **months** from RESUME DATA JSON.  
+   - If given in years or days, convert units automatically (years × 12, days ÷ 30).  
+2. **Apply Parameters:**  
+   - Assign \( M_i, GM_i, RDF_i \) per Tables 1–3.  
+   - Calculate \( SMS_i \) based on semantic skill matching against TARGET JOB.  
+3. **Compute Weighted Years:**
+   \[
+   Y_{weighted} = \frac{\text{Sum of all position contributions}}{12}
+   \]
+4. **Finalize:**
+   \[
+   EDS = \min(100, 10 \times Y_{weighted})
+   \]
+
+#### 3.3.2 ELS Calculation Steps (Updated)
+1. **Step 1 – Degree Level**  
+   \( S_{degree} \) = maximum \( D_j \) (Table 5)
+
+2. **Step 2 – Education Relevance (Updated)**  
+   - **Sort education entries by program end date (newest first)**  
+   - For each degree, compute \( R_i \times L_i \times W_i \)  
+   - Sum results → \( S_{relevance} \)
+
+3. **Step 3 – University Quality (Updated)**  
+   - **Sort universities by degree end date (newest first)**  
+   - For each, calculate \( T_i \times W_i \)  
+   - Sum results → \( S_{university} \)
+
+4. **Step 4 – Courses**  
+   \( S_{courses} = \min(100, N_{courses} \times 10) \)
+
+5. **Step 5 – Certifications**  
+   \( S_{cert} = \min(100, N_{cert} \times 15) \)
+
+6. **Finalize ELS:**  
+   \[
+   ELS = \min(100, 0.20S_{degree}+0.25S_{relevance}+0.20S_{university}+0.15S_{courses}+0.15S_{cert})
+   \]
+
+---
+
+### 3.4 Edge Cases and Special Conditions
+
+#### 3.4.1 EDS Edge Cases (Updated)
+**Case 1 – No Experience:**  
+If \( n = 0 \), then \( EDS = 0 \)
+
+**Case 2 – Overlapping Positions (Updated):**  
+For overlapping time intervals:  
+- Treat as one combined period (prevent double-counting of duration).  
+- Use **maximum values** among overlapping \( M, GM, RDF \).  
+- Compute \( SMS \) as the **normalized aggregate** of all overlapping positions’ skills (scaled 0–1).
+
+**Case 3 – Missing SMS (Updated):**  
+If no related skills detected, assign \( SMS_i = 0.1 \).
+
+**Case 4 – Missing Duration (Updated):**  
+If no duration provided, automatically calculate:  
+\[
+duration_i = (end\_date - start\_date) \text{ converted to months}
+\]
+
+**Case 5 – Unrecognized Location:**  
+Default \( GM_i = 1.0 \)
+
+**Case 6 – Unrecognized Role:**  
+Infer the nearest semantic match and use corresponding \( RDF_i \).
+
+---
+
+#### 3.4.2 ELS Edge Cases (Updated)
+**Case 1 – No Education:**  
+If no degrees listed, \( S_{degree}, S_{relevance}, S_{university} = 0 \).  
+Weights for courses/certs remain applied.
+
+**Case 2 – Non-Degree Entries Only:**  
+Use courses and certifications only for ELS weighting.
+
+**Case 3 – In-Progress Degrees:**  
+Include them fully in calculations.
+
+**Case 4 – Rank Coverage Beyond Third:**  
+Apply fixed \( W_i = 0.3 \) for all fourth and later degrees.
+
+**Case 5 – Unrecognized University Tier:**  
+Default \( T_i = 10 \) (Tier 5).
+
+**Case 6 – Undefined Field of Study:**  
+Infer relevance; assign \( R_i = 25 \) unless clearly irrelevant.
+
+**Case 7 – Incomplete Component Values:**  
+Skip any degree missing \( R_i, L_i, W_i \).
+
+---
+
+### 3.5 Final Clarifications & Confirmations
+
+| Topic | Final Decision |
+|-------|----------------|
+| Weight for Degrees Rank ≥ 4 | \( W_i = 0.3 \) |
+| Duration Unit Conversion | Performed automatically |
+| SMS Evaluation Basis | Based on skill match with TARGET JOB |
+| Temporal Continuity Index (TCI) | Removed |
+| Employment Gap Calculation | Removed |
+
+---
+
+
