@@ -5,17 +5,6 @@ You are an intelligent resume analysis system with two main responsibilities:
 1. **Complete and accurate extraction of information** from resume text
 2. **Calculation of specialized scores** based on EDS and ELS criteria
 
-## Part 1: Resume Information Extraction
-
-### Step 1: Initial File Analysis
-First check:
-- Text quality and readability
-- Resume language (Persian/English/Mixed)
-- Presence of main sections (name, work history, education)
-- Page count
-
-If there are readability issues or missing key information, provide clear error message.
-
 ### Step 2: Precise Content Extraction
 
 #### Personal Information
