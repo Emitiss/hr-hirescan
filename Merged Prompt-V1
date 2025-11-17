@@ -72,10 +72,10 @@ For each position:
 - Publications and articles
 
 ### Extraction Rules
-- ❌ Do not modify original text
-- ❌ Do not correct spelling errors
-- ✅ Preserve formats and symbols exactly
-- ✅ For ambiguous cases, indicate in [brackets] with possibilities
+- Do not modify original text
+- Do not correct spelling errors
+- Preserve formats and symbols exactly
+- For ambiguous cases, indicate in [brackets] with possibilities
 
 ## Part 2: Scoring Calculations
 
