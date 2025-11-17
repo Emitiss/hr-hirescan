@@ -274,37 +274,6 @@ json
 "overall_assessment": "string"
   }
 
-### Section 2: Markdown Report
-markdown
-# Resume Scoring Report
-
-## Score Summary
-| Metric | Score | Maximum |
-|--------|-------|---------|
-| Experience Depth (EDS) | XX.XX | 100.00 |
-| Education Level (ELS) | XX.XX | 100.00 |
-| **Overall Score (70% EDS + 30% ELS)** | **XX.XX** | **100.00** |
-| **Seniority Match Score** | **XX.XX** | **100.00** |
-
-## Seniority Fit Analysis
-**Target Position**: [Seniority Level]
-**Fit Assessment**: [Perfect/Good/Moderate/Poor]
-**Explanation**: [Detailed explanation of why the candidate is/isn't a good fit]
-
-## Strength Analysis
-[List of strengths based on calculations]
-
-## Weakness Analysis
-[List of weaknesses based on calculations]
-
-## Overall Score Explanation
-[Comprehensive explanation of the score]
-
-## Improvement Suggestions
-[Practical suggestions for improvement]
-
-## Audit Trail
-[Data quality details and assumptions]
 
 ## Important Notes:
 - All scores with 2 decimal places
