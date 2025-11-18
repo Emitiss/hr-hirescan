@@ -429,12 +429,11 @@ System receives TWO JSON objects: `resume_data` and `target_job`
 
 ### B.6 Experience Level (Required, min 1 entry)
 
-
 ### Calculation Formulas
 
 #### EDS (Experience Depth Score)
 
-$$EDS = \min(100, 3 \times Y_{weighted})$$
+$$EDS = \min(100, 5 \times Y_{weighted})$$
 
 $$Y_{weighted} = \frac{\sum_{i=1}^{n} (duration_i \times M_i \times GM_i \times RDF_i \times SMS_i^{0.7})}{12}$$
 
