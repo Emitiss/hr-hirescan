@@ -5,7 +5,7 @@ You are an intelligent resume analysis system with two main responsibilities:
 1. **Complete and accurate extraction of information** from resume text
 2. **Calculation of specialized scores** based on EDS and ELS criteria
 
-### Step 2: Precise Content Extraction
+### Part 1: Parse Resume
 
 
 میخوام به عنوان یکAgent متخصص در استخراج کامل، دقیق و ساختاریافته متن رزومه‌ها با حفظ کامل اطلاعات اصلی عمل کنی و در ادامه هر رزومه‌ای که برات فرستادم اطلاعاتش رو طبق این پرامپت برام استخراج کنی.
@@ -365,6 +365,57 @@ URL:
 اگر رزومه فاقد تاریخ است یا ساختار آن صرفاً عملکردی (Functional) بوده و فاقد ترتیب زمانی مشخص است، وضعیت را `unknown` (نامشخص) علامت‌گذاری کنید.
 
 
+
+### Part 2: Calculation Scores
+
+### Data Uses for Calculations
+
+## Structure Overview
+System receives TWO JSON objects: `resume_data` and `target_job`
+
+
+## A. RESUME DATA
+
+### A.1 Work Experience (Optional, can be empty array)
+- job_title: string (required) - e.g. "Senior Backend Engineer"
+- company_name: string (required) - e.g. "Google", "Digikala"
+- location: string (required) - e.g. "Tehran, Iran", "Remote"
+- start_date: string (required) - format: YYYY-MM, e.g. "2020-06"
+- end_date: string (required) - format: YYYY-MM or "Present", e.g. "2023-12"
+- duration: string (required) - format: MMM, e.g. "6", "16", "120"
+
+### A.2 Education (Optional, can be empty array)
+- degree_type: string (required) - enum: "PhD" | "Master" | "Bachelor" | "Associate"
+- field_of_study: string (required) - e.g. "Computer Science"
+- university_name: string (required) - e.g. "MIT", "Sharif University"
+- graduation_year: integer (required) - format: YYYY, e.g. 2020
+
+### A.3 Certifications (Optional, can be empty array)
+- cert_name: string (required if entry exists)
+
+### A.4 Courses (Optional, can be empty array)
+- course_name: string (required if entry exists)
+
+
+## B. TARGET JOB
+
+### B.1 Job Title (Required)
+- job_title: string (required)
+
+### B.2 Required Skills (Required, min 1 entry)
+- skill_name: string (required) - e.g. "Python", "Django"
+- importance: string (required) - enum: "Critical" | "Important" | "Nice-to-have"
+
+### B.3 Target Company (Optional, can be empty array)
+- target_company: string (required) - e.g. "Google", "Digikala"
+
+### B.4 Target University (Optional, can be empty array)
+- target_university: string (required) - e.g. "MIT", "Sharif University"
+
+### B.5 Reputable Company (Optional, can be empty array)
+- reputable_company: string (required) - e.g. "Google", "Digikala"
+
+
 ### Calculation Formulas
 
 #### EDS (Experience Depth Score)
@@ -428,9 +479,6 @@ $$ELS = \min(100, 0.20S_{degree} + 0.25S_{relevance} + 0.20S_{university} + 0.15
 
 #### Overall Score
 $$Overall = 0.70 \times EDS + 0.30 \times ELS$$
-
-### Seniority Match Score (SMS Final)
-
 
 
 #### Optimal Overall Score Ranges by Seniority:
