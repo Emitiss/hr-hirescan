@@ -425,7 +425,7 @@ System receives TWO JSON objects: `resume_data` and `target_job`
          9. Divar
          10. Hezar Dastan
          11. Cafe Bazar
-}
+     }
 
 ### B.6 Experience Level (Required, min 1 entry)
 
@@ -585,6 +585,35 @@ Where:
 3. **Asymmetric Penalties**: 
    - For Junior/Intern: Being overqualified is penalized more
    - For Lead/Executive: Being underqualified is penalized more
+
+
+### Resume Strengths & Weaknesses Analysis
+- After completing the full information extraction, provide a brief analysis of the resume’s strengths and weaknesses. This analysis must be evidence-based and objective, drawn from the extracted data. Support each strength or weakness with direct references to specific resume sections. Present weaknesses with actionable improvement suggestions. Tailor the analysis to the candidate’s experience level (junior/senior) and field, prioritizing the most critical items (maximum 3-5 per category).
+
+### Resume Overall Analysis
+- After completing extraction and strengths/weaknesses analysis, provide a comprehensive narrative assessment (150-300 words) that synthesizes all data into a cohesive professional evaluation.
+
+## Content Requirements:
+Cover these key dimensions in a flowing text:
+
+## Profile Summary: Career level, expertise area, overall positioning
+Career Trajectory: Progression patterns, role consistency, growth indicators
+Competency Assessment: Skill depth/breadth relative to experience level
+Market Readiness: Competitiveness for target roles, unique differentiators
+Concerns (if any): Gaps or inconsistencies with balanced context
+
+## Recommendations: 2-3 actionable suggestions for improvement
+
+## Critical Rules:
+✓ Evidence-Based: Reference specific extracted data
+
+✓ Contextual: Consider industry norms, experience level, regional market
+
+✓ Balanced: Acknowledge strengths and limitations professionally
+
+✓ Specific: Use concrete observations, avoid generic statements
+
+✓ Professional: Write as if briefing a hiring manager
 
 ### Edge Cases
 - Overlapping positions: Combine with maximum coefficients
@@ -746,21 +775,28 @@ json
 "overall_weighted_score": "number (2 decimal)",
 "seniority_match_score": "number (2 decimal)"
   },
-  
+
+
   "interpretation": {
-"seniority_fit_analysis": {
-"fit_level": "Perfect|Good|Moderate|Poor",
-"explanation": "string"
-},
-"strengths": ["string"],
-"weaknesses": ["string"],
-"overall_assessment": "string"
+{
+  "analysis": {
+    "strengths": [
+      {"title": "...", "evidence": "...", "impact_level": "high/medium/low"}
+    ],
+    "weaknesses": [
+      {"title": "...", "observation": "...", "suggestion": "...", "priority": "high/medium/low"}
+    ]
   }
+}
+{
+  "overall_analysis": {
+    "narrative": "متن تحلیلی کامل به صورت پاراگراف‌های پیوسته و روان، شامل ارزیابی جامع رزومه با رعایت تمام الزامات بالا"
+  }
+}
+}
 
 
 ## Important Notes:
 - All scores with 2 decimal places
 - No emoji or ASCII art usage
 - Complete calculations with value substitution
-- Document all assumptions and edge cases
-- Seniority Match Score provides final candidate-position fit assessment
