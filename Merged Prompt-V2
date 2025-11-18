@@ -8,7 +8,7 @@ You are an intelligent resume analysis system with two main responsibilities:
 ### Part 1: Parse Resume
 
 
-میخوام به عنوان یکAgent متخصص در استخراج کامل، دقیق و ساختاریافته متن رزومه‌ها با حفظ کامل اطلاعات اصلی عمل کنی و در ادامه هر رزومه‌ای که برات فرستادم اطلاعاتش رو طبق این پرامپت برام استخراج کنی.
+میخوام به عنوان یک Agent متخصص در استخراج کامل، دقیق و ساختاریافته متن رزومه‌ها با حفظ کامل اطلاعات اصلی عمل کنی و در ادامه هر رزومه‌ای که برات فرستادم اطلاعاتش رو طبق این پرامپت برام استخراج کنی.
 
 ## مرحله 1: تحلیل و شناسایی اولیه
 
@@ -423,26 +423,76 @@ $$EDS = \min(100, 10 \times Y_{weighted})$$
 
 $$Y_{weighted} = \frac{\sum_{i=1}^{n} (duration_i \times M_i \times GM_i \times RDF_i \times SMS_i^{0.7})}{12}$$
 
-**Parameter Tables:**
+### 3.2 Parameter Tables
 
-| Parameter | Value | Description |
-|-----------|-------|-------------|
-| **M (Company Quality)** | | |
-| Target Company | 1.5 | Target companies |
-| Reputable Company | 1.2 | Reputable companies |
-| Other | 1.0 | Others |
-| **GM (Geographic)** | | |
+#### Table 1 – Company Quality Multiplier (M)
+| Company Type | Value | Description |
+|-------------|-------|-------------|
+| Target Company | 1.5 | Listed in “Target Companies” input |
+| Reputable Company | 1.2 | Listed in “Reputable Companies” input |
+| Other | 1.0 | Not listed in either of the above categories |
+
+#### Table 2 – Geographic Multiplier (GM)
+| Location | Value | Description |
+|----------|-------|-------------|
 | US | 1.5 | United States |
-| EU/East Asia/Canada | 1.2 | Europe, East Asia, Canada |
-| Others | 1.0 | Others |
-| **RDF (Role Depth)** | | |
-| Executive | 1.5 | CEO, CTO, VP |
-| Lead | 1.4 | Tech Lead, Manager |
-| Senior | 1.2 | Senior Developer |
+| EU / East Asia / Canada | 1.2 | Europe, East Asian countries, and Canada |
+| Others | 1.0 | Any other region |
+
+#### Table 3 – Role Depth Factor (RDF)
+| Role Level | Value | Example |
+|------------|-------|---------|
+| Executive | 1.5 | CEO, CTO, VP Engineering |
+| Lead | 1.4 | Tech Lead, Engineering Manager |
+| Senior | 1.2 | Senior Developer/Engineer |
 | Mid-Level | 1.1 | Mid-level Developer |
 | Junior | 1.0 | Junior Developer |
-| Intern | 0.7 | Intern |
-| **SMS** | 0-1 | Skill match score |
+| Intern | 0.7 | Internship role |
+
+#### Table 4 – Skill Match Score (SMS)
+- Value range: 0–1  
+- Determined by semantic analysis of **skill and technology matching** between the position and (B.2 Required Skills).  
+- Considers overlapping technical tools, methodologies, and domain familiarity.
+
+#### Table 5 – Degree Level Values (\( D_j \))
+| Degree Type | Value |
+|------------|-------|
+| PhD | 100 |
+| Master’s | 75 |
+| Bachelor’s | 50 |
+| Associate | 25 |
+| Diploma | 0 |
+
+#### Table 6 – Education Relevance Factor (\( R_i \))
+LLM dynamically generates relevance values according to the **TARGET JOB** title.  
+- Directly relevant → 100  
+- Partially relevant → 50‒75  
+- Tangentially related → 25  
+- Unrelated → 0  
+
+#### Table 7 – Level Multiplier (\( L_i \))
+| Degree Category | Value |
+|----------------|-------|
+| PhD / Master’s / Bachelor’s | 1.0 |
+| Associate / Diploma | 0.0 |
+
+#### Table 8 – Decreasing Weight (\( W_i \))
+| Rank | Value | Description |
+|------|-------|-------------|
+| 1st | 1.0 | Most recent degree |
+| 2nd | 0.5 | Second most recent |
+| 3rd | 0.3 | Third most recent |
+| 4th+ | 0.3 | All remaining degrees after the third |
+
+#### Table 9 – University Tier Score (\( T_i \))
+| Tier | Value | Description |
+|------|-------|-------------|
+| Tier 1 | 100 | Top 50 worldwide |
+| Tier 2 | 70 | Top 200 worldwide |
+| Tier 3 | 50 | Top 500 worldwide |
+| Tier 4 | 30 | Regional universities (e.g., Khwarazmi University, University of Mazandaran, Brock University, Universität Kassel) |
+| Tier 5 | 10 | Local/unknown or unranked institutions |
+
 
 #### ELS (Education & Learning Score)
 $$ELS = \min(100, 0.20S_{degree} + 0.25S_{relevance} + 0.20S_{university} + 0.15S_{courses} + 0.15S_{cert})$$
