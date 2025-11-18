@@ -412,14 +412,29 @@ System receives TWO JSON objects: `resume_data` and `target_job`
 ### B.4 Target University (Optional, can be empty array)
 - target_university: string (required) - e.g. "MIT", "Sharif University"
 
-### B.5 Reputable Company (Optional, can be empty array)
-- reputable_company: string (required) - e.g. "Google", "Digikala"
+### B.5 Reputable Company 
+   {
+         1. Digikala
+         2. Snapp
+         3. Saba Idea
+         4. Snapp pay
+         5. Tapsi
+         6. Okala
+         7. Azki
+         8. Bimeh Bazar
+         9. Divar
+         10. Hezar Dastan
+         11. Cafe Bazar
+}
+
+### B.6 Experience Level (Required, min 1 entry)
 
 
 ### Calculation Formulas
 
 #### EDS (Experience Depth Score)
-$$EDS = \min(100, 10 \times Y_{weighted})$$
+
+$$EDS = \min(100, 3 \times Y_{weighted})$$
 
 $$Y_{weighted} = \frac{\sum_{i=1}^{n} (duration_i \times M_i \times GM_i \times RDF_i \times SMS_i^{0.7})}{12}$$
 
