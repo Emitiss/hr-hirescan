@@ -469,11 +469,8 @@ json
 }
 ],
 "soft": [
-"رهبری تیم",
-"مدیریت پروژه",
-"ارتباط مؤثر"
-
 ],
+
 "skills_mentioned_in_job_title": [
  "string", "..."
 
@@ -539,13 +536,6 @@ json
 }
   ],
   
-  "interests": {
-"professional": ["علاقه تخصصی 1", "علاقه تخصصی 2"],
-"personal": ["علاقه شخصی 1", "علاقه شخصی 2"],
-"volunteer": ["فعالیت داوطلبانه"],
-"memberships": ["عضویت در انجمن"]
-},
-  
   "other_sections": {
 "professional_summary": "خلاصه حرفه‌ای در صورت وجود",
 "career_objectives": "اهداف شغلی در صورت وجود",
@@ -563,8 +553,4 @@ json
 "مورد مبهم 1 با احتمالات",
 "مورد مبهم 2"
 ],
-"missing_sections": ["بخش‌های موجود اما خالی"],
-"quality_issues": ["مشکلات کیفیت تصویر"],
-"special_notes": ["نکات ویژه"]
-  }
 }
