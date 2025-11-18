@@ -735,9 +735,7 @@ json
   "interpretation": {
 "seniority_fit_analysis": {
 "fit_level": "Perfect|Good|Moderate|Poor",
-"explanation": "string",
-"overqualified": "boolean",
-"underqualified": "boolean"
+"explanation": "string"
 },
 "strengths": ["string"],
 "weaknesses": ["string"],
