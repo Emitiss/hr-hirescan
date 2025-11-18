@@ -402,6 +402,123 @@ URL:
 اگر رزومه فاقد تاریخ است یا ساختار آن صرفاً عملکردی (Functional) بوده و فاقد ترتیب زمانی مشخص است، وضعیت را `unknown` (نامشخص) علامت‌گذاری کنید.
 
 
+### Calculation Formulas
+
+#### EDS (Experience Depth Score)
+$$EDS = \min(100, 10 \times Y_{weighted})$$
+
+$$Y_{weighted} = \frac{\sum_{i=1}^{n} (duration_i \times M_i \times GM_i \times RDF_i \times SMS_i^{0.7})}{12}$$
+
+**Parameter Tables:**
+
+| Parameter | Value | Description |
+|-----------|-------|-------------|
+| **M (Company Quality)** | | |
+| Target Company | 1.5 | Target companies |
+| Reputable Company | 1.2 | Reputable companies |
+| Other | 1.0 | Others |
+| **GM (Geographic)** | | |
+| US | 1.5 | United States |
+| EU/East Asia/Canada | 1.2 | Europe, East Asia, Canada |
+| Others | 1.0 | Others |
+| **RDF (Role Depth)** | | |
+| Executive | 1.5 | CEO, CTO, VP |
+| Lead | 1.4 | Tech Lead, Manager |
+| Senior | 1.2 | Senior Developer |
+| Mid-Level | 1.1 | Mid-level Developer |
+| Junior | 1.0 | Junior Developer |
+| Intern | 0.7 | Intern |
+| **SMS** | 0-1 | Skill match score |
+
+#### ELS (Education & Learning Score)
+$$ELS = \min(100, 0.20S_{degree} + 0.25S_{relevance} + 0.20S_{university} + 0.15S_{courses} + 0.15S_{cert})$$
+
+**Formula Components:**
+- S_degree: Highest degree (PhD:100, MS:75, BS:50, Associate:25)
+- S_relevance: $\sum_{i=1}^{n} (R_i \times L_i \times W_i)$
+- S_university: $\sum_{i=1}^{n} (T_i \times W_i)$
+- S_courses: $\min(100, N_{courses} \times 10)$
+- S_cert: $\min(100, N_{cert} \times 15)$
+
+**Coefficient Tables:**
+
+| Degree Level (D) | Value |
+|-----------------|-------|
+| PhD | 100 |
+| Master's | 75 |
+| Bachelor's | 50 |
+| Associate | 25 |
+
+| University Tier (T) | Value |
+|-------------------|-------|
+| Tier 1 (Top 50) | 100 |
+| Tier 2 (Top 200) | 70 |
+| Tier 3 (Top 500) | 50 |
+| Tier 4 (Regional) | 30 |
+| Tier 5 (Local) | 10 |
+
+| Weight by Rank (W) | Value |
+|-------------------|-------|
+| 1st (newest) | 1.0 |
+| 2nd | 0.5 |
+| 3rd+ | 0.3 |
+
+#### Overall Score
+$$Overall = 0.70 \times EDS + 0.30 \times ELS$$
+
+### Seniority Match Score (SMS Final)
+
+The final score adjusts the Overall Score based on how well the candidate matches the target seniority level.
+
+#### Optimal Overall Score Ranges by Seniority:
+
+| Seniority Level | Optimal Range | Peak Score | Penalty Formula |
+|-----------------|---------------|------------|-----------------|
+| **Intern** | 15-30 | 22.5 | See below |
+| **Junior** | 25-45 | 35 | See below |
+| **Mid-Level** | 40-60 | 50 | See below |
+| **Senior** | 55-75 | 65 | See below |
+| **Lead** | 65-85 | 75 | See below |
+| **Executive** | 75-95 | 85 | See below |
+
+#### Seniority Match Score Calculation:
+
+For each seniority level, the SMS Final is calculated as:
+
+$$SMS_{Final} = 100 \times e^{-\alpha \times (Overall - Peak)^2}$$
+
+Where:
+- $\alpha$ = Penalty coefficient (varies by level)
+- $Peak$ = Optimal overall score for the position
+- $Overall$ = Candidate's overall weighted score
+
+**Penalty Coefficients ($\alpha$):**
+
+| Seniority | α (Under-qualified) | α (Over-qualified) | Rationale |
+|-----------|---------------------|-------------------|-----------|
+| **Intern** | 0.008 | 0.015 | Heavy penalty for overqualification |
+| **Junior** | 0.006 | 0.012 | Moderate penalty for overqualification |
+| **Mid-Level** | 0.005 | 0.005 | Symmetric penalties |
+| **Senior** | 0.006 | 0.004 | Slight preference for experience |
+| **Lead** | 0.008 | 0.003 | Strong preference for experience |
+| **Executive** | 0.010 | 0.002 | Very strong preference for experience |
+
+**Special Cases:**
+1. **Perfect Match**: If $|Overall - Peak| < 2$, SMS_Final = 100
+2. **Extreme Mismatch**: If $|Overall - Peak| > 40$, SMS_Final = 0
+3. **Asymmetric Penalties**: 
+   - For Junior/Intern: Being overqualified is penalized more
+   - For Lead/Executive: Being underqualified is penalized more
+
+### Edge Cases
+- Overlapping positions: Combine with maximum coefficients
+- Missing SMS: Default value 0.1
+- Missing duration: Auto-calculate from dates
+- Unknown university: Tier 5 (value 10)
+
+## Final Output Structure
+
+### Section 1: Complete JSON with Information
 
 **خروجی JSON:**
 
@@ -551,167 +668,6 @@ json
 ]
   },
 }
-
-
-### Calculation Formulas
-
-#### EDS (Experience Depth Score)
-$$EDS = \min(100, 10 \times Y_{weighted})$$
-
-$$Y_{weighted} = \frac{\sum_{i=1}^{n} (duration_i \times M_i \times GM_i \times RDF_i \times SMS_i^{0.7})}{12}$$
-
-**Parameter Tables:**
-
-| Parameter | Value | Description |
-|-----------|-------|-------------|
-| **M (Company Quality)** | | |
-| Target Company | 1.5 | Target companies |
-| Reputable Company | 1.2 | Reputable companies |
-| Other | 1.0 | Others |
-| **GM (Geographic)** | | |
-| US | 1.5 | United States |
-| EU/East Asia/Canada | 1.2 | Europe, East Asia, Canada |
-| Others | 1.0 | Others |
-| **RDF (Role Depth)** | | |
-| Executive | 1.5 | CEO, CTO, VP |
-| Lead | 1.4 | Tech Lead, Manager |
-| Senior | 1.2 | Senior Developer |
-| Mid-Level | 1.1 | Mid-level Developer |
-| Junior | 1.0 | Junior Developer |
-| Intern | 0.7 | Intern |
-| **SMS** | 0-1 | Skill match score |
-
-#### ELS (Education & Learning Score)
-$$ELS = \min(100, 0.20S_{degree} + 0.25S_{relevance} + 0.20S_{university} + 0.15S_{courses} + 0.15S_{cert})$$
-
-**Formula Components:**
-- S_degree: Highest degree (PhD:100, MS:75, BS:50, Associate:25)
-- S_relevance: $\sum_{i=1}^{n} (R_i \times L_i \times W_i)$
-- S_university: $\sum_{i=1}^{n} (T_i \times W_i)$
-- S_courses: $\min(100, N_{courses} \times 10)$
-- S_cert: $\min(100, N_{cert} \times 15)$
-
-**Coefficient Tables:**
-
-| Degree Level (D) | Value |
-|-----------------|-------|
-| PhD | 100 |
-| Master's | 75 |
-| Bachelor's | 50 |
-| Associate | 25 |
-
-| University Tier (T) | Value |
-|-------------------|-------|
-| Tier 1 (Top 50) | 100 |
-| Tier 2 (Top 200) | 70 |
-| Tier 3 (Top 500) | 50 |
-| Tier 4 (Regional) | 30 |
-| Tier 5 (Local) | 10 |
-
-| Weight by Rank (W) | Value |
-|-------------------|-------|
-| 1st (newest) | 1.0 |
-| 2nd | 0.5 |
-| 3rd+ | 0.3 |
-
-#### Overall Score
-$$Overall = 0.70 \times EDS + 0.30 \times ELS$$
-
-### Seniority Match Score (SMS Final)
-
-The final score adjusts the Overall Score based on how well the candidate matches the target seniority level.
-
-#### Optimal Overall Score Ranges by Seniority:
-
-| Seniority Level | Optimal Range | Peak Score | Penalty Formula |
-|-----------------|---------------|------------|-----------------|
-| **Intern** | 15-30 | 22.5 | See below |
-| **Junior** | 25-45 | 35 | See below |
-| **Mid-Level** | 40-60 | 50 | See below |
-| **Senior** | 55-75 | 65 | See below |
-| **Lead** | 65-85 | 75 | See below |
-| **Executive** | 75-95 | 85 | See below |
-
-#### Seniority Match Score Calculation:
-
-For each seniority level, the SMS Final is calculated as:
-
-$$SMS_{Final} = 100 \times e^{-\alpha \times (Overall - Peak)^2}$$
-
-Where:
-- $\alpha$ = Penalty coefficient (varies by level)
-- $Peak$ = Optimal overall score for the position
-- $Overall$ = Candidate's overall weighted score
-
-**Penalty Coefficients ($\alpha$):**
-
-| Seniority | α (Under-qualified) | α (Over-qualified) | Rationale |
-|-----------|---------------------|-------------------|-----------|
-| **Intern** | 0.008 | 0.015 | Heavy penalty for overqualification |
-| **Junior** | 0.006 | 0.012 | Moderate penalty for overqualification |
-| **Mid-Level** | 0.005 | 0.005 | Symmetric penalties |
-| **Senior** | 0.006 | 0.004 | Slight preference for experience |
-| **Lead** | 0.008 | 0.003 | Strong preference for experience |
-| **Executive** | 0.010 | 0.002 | Very strong preference for experience |
-
-**Special Cases:**
-1. **Perfect Match**: If $|Overall - Peak| < 2$, SMS_Final = 100
-2. **Extreme Mismatch**: If $|Overall - Peak| > 40$, SMS_Final = 0
-3. **Asymmetric Penalties**: 
-   - For Junior/Intern: Being overqualified is penalized more
-   - For Lead/Executive: Being underqualified is penalized more
-
-### Edge Cases
-- Overlapping positions: Combine with maximum coefficients
-- Missing SMS: Default value 0.1
-- Missing duration: Auto-calculate from dates
-- Unknown university: Tier 5 (value 10)
-
-## Final Output Structure
-
-### Section 1: Complete JSON with Information
-json
-{
-  "extracted_resume_data": {
-"personal_info": {
-"full_name": "string",
-"phone": "string",
-"email": "string",
-"links": {
-"linkedin": "string",
-"github": "string",
-"portfolio": "string"
-}
-},
-"education": [
-{
-"degree": "string",
-"field": "string",
-"institution": "string",
-"institution_category": "string",
-"graduation_year": "number",
-"gpa": "string"
-}
-],
-"experience": [
-{
-"job_title": "string",
-"company": "string",
-"location": "string",
-"start_date": "string",
-"end_date": "string",
-"duration_months": "number",
-"responsibilities": ["string"],
-"extracted_skills": ["string"]
-}
-],
-"skills": {
-"technical": ["string"],
-"soft": ["string"]
-},
-"courses": ["string"],
-"certifications": ["string"]
-  },
   
   "scoring_results": {
 "final_scores": {
