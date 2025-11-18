@@ -485,8 +485,7 @@ Where:
 
 **خروجی JSON:**
 
-
-##خروجی شما باید دقیقاً به این فرمت JSON باشد:  
+##خروجی شما باید دقیقاً و فقط به این فرمت JSON باشد:  
 
 json
 {
@@ -537,15 +536,12 @@ json
 {
 "category": "زبان‌های برنامه‌نویسی",
 "items": [
-{"name": "Python", "level": "پیشرفته"},
-{"name": "Java", "level": "متوسط"}
 
 ]
 },
 {
 "category": "فریمورک‌ها",
 "items": [
-{"name": "TensorFlow", "level": "پیشرفته"}
 
 ]
 }
@@ -553,8 +549,6 @@ json
 "soft": [
 ],
 
-"skills_mentioned_in_job_title": [
- "string", "..."
 
 ]
   },
