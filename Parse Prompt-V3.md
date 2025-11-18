@@ -443,7 +443,6 @@ json
 "start_date": "تاریخ شروع",
 "end_date": "تاریخ پایان یا 'تاکنون'",
 "duration": "مدت زمان محاسبه شده",
-"is_currently_employed": true,
 "responsibilities": [
 "شرح وظیفه 1",
 "شرح وظیفه 2",
