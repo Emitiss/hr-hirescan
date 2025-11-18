@@ -578,6 +578,30 @@ Concerns (if any): Gaps or inconsistencies with balanced context
 
 ## Recommendations: 2-3 actionable suggestions for improvement
 
+
+#### CV Score for Job Description Matching
+
+- After calculating the overall_score, compute a JD Matching Score that measures alignment between the resume and target seniority level.
+
+## Expected Score Reference Table
+- Base on experience_level
+Intern: 40-55 (Target: 47.5) - کارآموز
+Junior: 55-70 (Target: 62.5) - جونیور
+Mid-Level: 70-82 (Target: 76.0) - میدلول
+Senior: 82-92 (Target: 87.0) - سنیور
+Lead/Expert: 92-100 (Target: 96.0) - لید/متخصص
+
+
+## Calculation Formula
+CV Score for JD = 100 × e^(-((Overall Score - Target Score)² / (2σ²)))
+
+Where:
+
+Overall Score: Candidate’s overall resume score (0-100)
+Target Score: Midpoint of expected range for target seniority level
+σ = 15 (tolerance parameter)
+
+
 ## Critical Rules:
 ✓ Evidence-Based: Reference specific extracted data
 
@@ -750,6 +774,11 @@ json
 "seniority_match_score": "number (2 decimal)"
   },
 
+{
+  "cv_score_for_jd": {
+    "cv_jd_match_score": []
+}
+}
 
   "interpretation": {
 {
