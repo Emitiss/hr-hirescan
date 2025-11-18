@@ -526,8 +526,6 @@ json
 "provider": "مؤسسه برگزارکننده",
 "completion_date": "تاریخ اتمام",
 "duration": "مدت زمان",
-"certificate_id": "شماره گواهی",
-"verification_link": "لینک تأیید"
 
 }
   ],
@@ -538,10 +536,6 @@ json
 "authors": ["نویسنده 1", "نویسنده 2"],
 "venue": "نام ژورنال/کنفرانس",
 "year": "سال انتشار",
-"volume_pages": "شماره مجلد/صفحات",
-"doi": "DOI",
-"link": "لینک",
-"citations": "تعداد ارجاعات"
 }
   ],
   
